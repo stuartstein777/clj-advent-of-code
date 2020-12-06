@@ -32,8 +32,7 @@
                     (str/split-lines)
                     (map split-rows-and-cols)
                     (map find-seat-id)
-                    (sort)
-                    )]
+                    (sort))]
   (->> (partition 2 1 seat-ids)
        (filter (fn [[x y]] (> (- y x) 1)))
        (ffirst)
