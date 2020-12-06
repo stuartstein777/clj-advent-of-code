@@ -2,6 +2,8 @@
   (:require [clojure.string :as str]))
 
 ;; part 1
+(def screen-width 50)
+(def screen-height 6)
 
 ;; ============================================================================================================
 ;; turning on a 'width' by 'height' rectangle in the top left corner means taking h rows then
@@ -31,13 +33,17 @@
 ;; Now drop 2 rows from the original screen and concatenate these 2 new rows with the rest of the screen
 ;; (after dropping 2 rows).
 ;; ============================================================================================================
-(defn rec-turn-on [w row]
+(defn turn-on-rectangle [w row]
   (concat (repeat w \o) (drop w row)))
 
-(defn rec [a b screen]
+(defn rect [a b screen]
   (as-> (take b screen) o
-        (map (partial rec-turn-on a) o)
+        (map (partial turn-on-rectangle a) o)
         (concat o (drop b screen))))
+
+(defn rotate [r n row screen]
+  (let [rotated (concat (drop (- (count r) n) r) (take (- (count r) n) r))]
+    (concat (take row screen) [rotated] (drop (inc row) screen))))
 
 ;; ============================================================================================================
 ;; Rotating a row is just splitting the row at the rotation point, and swapping the halves and rejoining.
@@ -49,10 +55,8 @@
 ;; you back to the starting layout. So mod the rotation figure by 50.
 ;; ============================================================================================================
 (defn rotate-row [row n screen]
-  (let [r (nth screen row)
-        n (mod n 50)
-        rotated (concat (drop (- (count r) n) r) (take (- (count r) n) r))]
-    (concat (take row screen) [rotated] (drop (inc row) screen))))
+  (let [r (nth screen row)]
+    (rotate r n row screen)))
 
 ;; ============================================================================================================
 ;; Rotating a col is exactly the same as rotating a row, except I first rotate the whole thing so the rows
@@ -61,36 +65,31 @@
 ;; ============================================================================================================
 (defn rotate-col [col n screen]
   (let [screen (apply map vector screen)
-        r (nth screen col)
-        n (mod n 50)
-        rotated (concat (drop (- (count r) n) r) (take (- (count r) n) r))]
-    (apply map vector (concat (take col screen) [rotated] (drop (inc col) screen)))))
+        r (nth screen col)]
+    (->> (rotate r n col screen)
+         (apply map vector))))
 
 ;; =============================================================================================================
 ;; The starting screen. 50 x 6 all in the off (\x) position.
 ;; =============================================================================================================
 (defn start-screen []
-  [(repeat 50 \x)
-  (repeat 50 \x)
-  (repeat 50 \x)
-  (repeat 50 \x)
-  (repeat 50 \x)
-  (repeat 50 \x)])
+  (repeat screen-height (repeat screen-width \x)))
 
+;5x6
 ;; Called for each line the input file, returns a partially applied function for each transform.
 ;; Function return only requires the current screen.
 (defn parse-line [line]
   (cond (str/starts-with? line "rect")
         (let [[x y] (rest (re-matches #"rect (\d+)x(\d+)" line))]
-          (partial rec (Integer/parseInt x) (Integer/parseInt y)))
+          (partial rect (Integer/parseInt x) (Integer/parseInt y)))
 
         (str/starts-with? line "rotate column")
         (let [[x y] (rest (re-matches #"rotate column x=(\d+) by (\d+)" line))]
-          (partial rotate-col (Integer/parseInt x) (Integer/parseInt y)))
+          (partial rotate-col (Integer/parseInt x) (mod (Integer/parseInt y) screen-width)))
 
         (str/starts-with? line "rotate row")
         (let [[x y] (rest (re-matches #"rotate row y=(\d+) by (\d+)" line))]
-          (partial rotate-row (Integer/parseInt x) (Integer/parseInt y)))))
+          (partial rotate-row (Integer/parseInt x) (mod (Integer/parseInt y) screen-width)))))
 
 (let [screen (start-screen)
     inputs (->> (slurp "puzzle-inputs/2016/day8")           ; read the input
@@ -108,4 +107,4 @@
                   (map parse-line))]
   (->> (reduce (fn [acc i] (i acc)) screen inputs)
        (map (partial apply str))
-       (map (fn [s] (str/replace (str/replace s "o" "▓") "x" "░"))))) ; draw it nice on the screen :)
+       (map (fn [s] (str/replace (str/replace s "o" "▓") "x" " ")))))
