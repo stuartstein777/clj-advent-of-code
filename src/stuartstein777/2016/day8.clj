@@ -33,17 +33,22 @@
 ;; Now drop 2 rows from the original screen and concatenate these 2 new rows with the rest of the screen
 ;; (after dropping 2 rows).
 ;; ============================================================================================================
-(defn turn-on-rectangle [w row]
+(defn turn-on-w-pixels [w row]
   (concat (repeat w \o) (drop w row)))
 
-(defn rect [a b screen]
-  (as-> (take b screen) o
-        (map (partial turn-on-rectangle a) o)
-        (concat o (drop b screen))))
+(defn rect [w h screen]
+  (as-> (take h screen) o
+        (map (partial turn-on-w-pixels w) o)
+        (concat o (drop h screen))))
 
-(defn rotate [r n row screen]
-  (let [rotated (concat (drop (- (count r) n) r) (take (- (count r) n) r))]
-    (concat (take row screen) [rotated] (drop (inc row) screen))))
+(defn rotate [places row-no screen]
+  (let [before (take row-no screen)
+        to-rotate (nth screen row-no)
+        num-rows-before (- (count to-rotate) places)
+        rotated (concat (drop num-rows-before to-rotate)
+                        (take num-rows-before to-rotate))
+        after (drop (inc row-no) screen)]
+    (concat before [rotated] after)))
 
 ;; ============================================================================================================
 ;; Rotating a row is just splitting the row at the rotation point, and swapping the halves and rejoining.
@@ -54,28 +59,25 @@
 ;; rotating more than the width of the row is irrelevant, as each multiple of the row length just returns
 ;; you back to the starting layout. So mod the rotation figure by 50.
 ;; ============================================================================================================
-(defn rotate-row [row n screen]
-  (let [r (nth screen row)]
-    (rotate r n row screen)))
+(defn rotate-row [row-no places screen]
+  (rotate places row-no screen))
 
 ;; ============================================================================================================
 ;; Rotating a col is exactly the same as rotating a row, except I first rotate the whole thing so the rows
 ;; are columns and the columns are rows. Transform the row as above, then rotate the whole thing back to
 ;; how it was originally. This has the effect of rotating the column.
 ;; ============================================================================================================
-(defn rotate-col [col n screen]
-  (let [screen (apply map vector screen)
-        r (nth screen col)]
-    (->> (rotate r n col screen)
-         (apply map vector))))
+(defn rotate-col [col-no places screen]
+  (->> (apply map vector screen)
+       (rotate places col-no)
+       (apply map vector)))
 
 ;; =============================================================================================================
 ;; The starting screen. 50 x 6 all in the off (\x) position.
 ;; =============================================================================================================
-(defn start-screen []
-  (repeat screen-height (repeat screen-width \x)))
+(defn start-screen [h w]
+  (repeat h (repeat w \x)))
 
-;5x6
 ;; Called for each line the input file, returns a partially applied function for each transform.
 ;; Function return only requires the current screen.
 (defn parse-line [line]
@@ -91,7 +93,7 @@
         (let [[x y] (rest (re-matches #"rotate row y=(\d+) by (\d+)" line))]
           (partial rotate-row (Integer/parseInt x) (mod (Integer/parseInt y) screen-width)))))
 
-(let [screen (start-screen)
+(let [screen (start-screen screen-height screen-width)
     inputs (->> (slurp "puzzle-inputs/2016/day8")           ; read the input
                 (str/split-lines)                           ; split it by line to get collection of instructions.
                 (map parse-line))]                          ; get a collection of functions, 1 for each instruction.
@@ -101,7 +103,7 @@
        (count)))                                            ; and count them.
 
 ;; part 2
-(let [screen (start-screen)
+(let [screen (start-screen screen-height screen-width)
       inputs (->> (slurp "puzzle-inputs/2016/day8")
                   (str/split-lines)
                   (map parse-line))]
