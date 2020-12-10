@@ -1,5 +1,6 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.10.1"}}
+ :deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        aysylu/loom {:mvn/version "1.0.2"}}
  :aliases
  {:remote-repl {:extra-deps {vlaaad/remote-repl {:mvn/version "1.1"}}}
   :reveal {:extra-deps {vlaaad/reveal {:mvn/version "1.0.130"}}}

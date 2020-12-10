@@ -9,9 +9,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Deps: org.clojure/data.json:0.2.6" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/clojure:1.10.1" level="project" />
-    <orderEntry type="library" name="Deps: org.clojure/test.check:1.0.0" level="project" />
-    <orderEntry type="library" name="Deps: org.clojure/spec.alpha:0.2.176" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/core.specs.alpha:0.2.44" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/spec.alpha:0.2.176" level="project" />
+    <orderEntry type="library" name="Deps: tailrecursion/cljs-priority-map:1.2.1" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/google-closure-library:0.0-20151016-61277aea" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/clojurescript:1.7.170" level="project" />
+    <orderEntry type="library" name="Deps: aysylu/loom:1.0.2" level="project" />
+    <orderEntry type="library" name="Deps: org.mozilla/rhino:1.7R5" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/google-closure-library-third-party:0.0-20151016-61277aea" level="project" />
+    <orderEntry type="library" name="Deps: com.google.javascript/closure-compiler:v20151015" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/tools.reader:0.10.0-alpha3" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/test.check:1.0.0" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/data.priority-map:0.0.5" level="project" />
   </component>
 </module>
