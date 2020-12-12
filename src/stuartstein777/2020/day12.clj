@@ -44,7 +44,7 @@
       :L (assoc acc :facing (turn facing inst distance))
       :F (assoc acc :location (forward facing cur-x cur-y distance)))))
 
-(->> (reduce move {:facing 0 :location [0 0]} (parse-input (slurp "resources/2020/day12")))
+(->> (reduce move {:facing 0 :location [0 0]} (parse-input (slurp "puzzle-inputs/2020/day12")))
      (:location)
      (map #(Math/abs %))
      (reduce +))
@@ -74,7 +74,7 @@
       :R (assoc acc :waypoint (rotate-waypoint waypoint inst d))
       :F (assoc acc :ship (forward2 ship waypoint d)))))
 
-(->> (reduce move2 {:ship [0 0] :waypoint [10 1]} (parse-input (slurp "resources/2020/day12")))
+(->> (reduce move2 {:ship [0 0] :waypoint [10 1]} (parse-input (slurp "puzzle-inputs/2020/day12")))
      (:ship)
      (map #(Math/abs ^int %))
      (reduce +))
