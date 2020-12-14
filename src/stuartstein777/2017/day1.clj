@@ -1,4 +1,4 @@
-(ns stuarts.2017day1
+(ns stuartstein777.2017.day1
   (:require [clojure.string :as str]))
 
 (defn parse-input []
