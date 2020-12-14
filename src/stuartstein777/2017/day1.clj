@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]))
 
 (defn parse-input []
-  (as-> (slurp "resources/2017/day1") o
+  (as-> (slurp "puzzle-inputs/2017/day1") o
         (str/split o #"")
         (map #(Integer/parseInt %) o)))
 
