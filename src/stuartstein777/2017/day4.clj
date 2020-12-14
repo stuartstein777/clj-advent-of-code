@@ -1,4 +1,4 @@
-(ns stuarts.2017day4
+(ns stuartstein777.2017.day4
   (:require [clojure.string :as str]))
 
 ;; part 1
