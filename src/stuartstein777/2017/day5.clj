@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]))
   
   (defn parse-input []
-  (->> (slurp "resources/2017/day5")
+  (->> (slurp "puzzle-inputs/2017/day5")
        (str/trim)
        (str/split-lines)
        (mapv #(Integer/parseInt %))))
