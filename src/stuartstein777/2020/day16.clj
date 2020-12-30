@@ -79,8 +79,8 @@
                (fn [i r] (remove #(= % r) i))
                "row")
 
-:input (set/map-invert {["row" "class"] 1, ["seat" "row" "class"] 2, ["row"] 0}) {}
-:ouput {0 "row", 1 "class", 2 "seat"}
+;input {["row" "class"] 1, ["seat" "row" "class"] 2, ["row"] 0} {}
+;ouput {0 "row", 1 "class", 2 "seat"}
 (defn reduce-rules-and-positions [satisfied-rules result]
   (let [values (keys satisfied-rules)
         sole (ffirst (filter #(= 1 (count %)) values))
