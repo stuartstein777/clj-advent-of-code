@@ -72,21 +72,24 @@
       (if (satisfies-rule? rule ticket)
         [(first ticket) (first rule)])))
 
-:input {1 #{"row" "class"}, 2 #{"seat" "row" "class"}, 0 #{"row"}} {}
+(defn update-values [m f & args]
+  (set/map-invert (reduce (fn [r [k v]] (assoc r k (apply f v args))) {} (set/map-invert m))))
+
+(update-values {["row" "class"] 1, ["seat" "row" "class"] 2, ["row"] 0}
+               (fn [i r] (remove #(= % r) i))
+               "row")
+
+:input (set/map-invert {["row" "class"] 1, ["seat" "row" "class"] 2, ["row"] 0}) {}
 :ouput {0 "row", 1 "class", 2 "seat"}
 (defn reduce-rules-and-positions [satisfied-rules result]
-  ; find key with only 1 item in value.
-  ; remove that from all other values.
-  ; recur.
-  (let [inverted (set/map-invert satisfied-rules)
-        values (keys inverted)
-        sole (first (filter #(= 1 (count %)) values))]
-    (prn inverted)
-    (prn sole)
-    (assoc result (get inverted sole) (first sole))
-    ))
+  (let [values (keys satisfied-rules)
+        sole (ffirst (filter #(= 1 (count %)) values))
+        updated (update-values satisfied-rules (fn [i r] (remove #(= % r) i))  sole)]
+    (if sole
+      (recur updated (assoc result (satisfied-rules [sole]) sole))
+      result)))
 
-(reduce-rules-and-positions {1 #{"row" "class"}, 2 #{"seat" "row" "class"}, 0 #{"row"}} {})
+(reduce-rules-and-positions (set/map-invert {1 ["row" "class"], 2 ["seat" "row" "class"], 0 ["row"]}) {})
 
 (defn part2 []
   (let [input (read-input)
@@ -106,19 +109,14 @@
                    (map build-range2))
         valid-tickets (filter (partial valid-ticket? ranges) tickets)
         transposed-tickets (zipmap (range) (apply map vector valid-tickets))
-        satisfied-rules (reduce (fn [acc [i rule]] (update acc i (fnil conj #{}) rule))
-                                {}
-                                (->> (get-satisfied-rules rules transposed-tickets)
-                                     (remove nil?)))]
-    (reduce-rules-and-positions satisfied-rules {})
-    satisfied-rules
-    ))
+        satisfied-rules (->> (reduce (fn [acc [i rule]] (update acc i (fnil conj []) rule))
+                                     {}
+                                     (->> (get-satisfied-rules rules transposed-tickets)
+                                          (remove nil?)))
+                             (set/map-invert))]
+    (-> (reduce-rules-and-positions satisfied-rules {})
+        (sort))))
 
 (part2)
 
-(defn update-values [m f & args]
-  (reduce (fn [r [k v]] (assoc r k (apply f v args))) {} m))
-
-(update-values {1 #{"row" "class"}, 2 #{"seat" "row" "class"}, 0 #{"row"}}
-               (fn [i r] (remove #(= % r) i))
-               "row")
+(* 67 113 61 139 83 59)
