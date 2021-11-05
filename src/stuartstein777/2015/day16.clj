@@ -1,3 +1,5 @@
+(ns stuartstein777.2015.day1)
+
 (defn parse-aunt [aunt-line]
   (let [num-idx (.indexOf aunt-line ":")
         num (Integer/parseInt (subs aunt-line 4 num-idx))
