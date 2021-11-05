@@ -12,7 +12,7 @@
 
 ;; part 1
 
-(let [all-aunts (->> (slurp "inputs/2015-16")
+(let [all-aunts (->> (slurp  "puzzle-inputs/2015/day16")
                      (str/split-lines)
                      (mapv parse-aunt))]  
   (-> (filter (every-pred
@@ -32,7 +32,7 @@
 
 ;; part 2
 
-(let [all-aunts (->> (slurp "inputs/2015-16")
+(let [all-aunts (->> (slurp  "puzzle-inputs/2015/day16")
                      (str/split-lines)
                      (mapv parse-aunt))]  
   (-> (filter (every-pred
