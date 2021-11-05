@@ -1,4 +1,4 @@
-(ns clj-advent-of-code-2015
+(ns stuartstein777.2015.day12
   (:require [com.rpl.specter :refer [select walker]]
             [clojure.data.json :as json]))
             
