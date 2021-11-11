@@ -9,3 +9,8 @@
 /.nrepl-port
 .hgignore
 .hg/
+.clj-kondo/
+.idea/
+.settings/
+.calva/
+.lsp/

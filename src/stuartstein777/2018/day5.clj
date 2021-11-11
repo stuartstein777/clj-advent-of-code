@@ -27,3 +27,4 @@
   (->> (map react all)
        (map count)
        (apply min)))
+
