@@ -1,5 +1,6 @@
 (ns stuartstein777.2015.day6
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [stuartstein777.file :as file]))
 
 (defn parse-line [line]
   (let [[action x1 y1 x2 y2] (->> line
@@ -31,9 +32,7 @@
     (reduce (fn [grid cell] (update-cell grid cell (:action i))) acc to-update)))
 
 (time
- (let [parsed-input (->> (slurp "puzzle-inputs/2015/day6-test")
-                         (str/split-lines)
-                         (mapv parse-line))
+ (let [parsed-input (file/read-all-lines-and-parse "puzzle-inputs/2015/day6" parse-line)
        initial-grid {}]
    (->> (reduce reducer initial-grid parsed-input)
         (vals)
@@ -61,9 +60,7 @@
   (reduce (fn [acc [_ f]] (f acc)) 0 part))
 
 (time
- (let [parsed-input (->> (slurp "puzzle-inputs/2015/day6")
-                         (str/split-lines)
-                         (mapv parse-line))]
+ (let [parsed-input (file/read-all-lines-and-parse "puzzle-inputs/2015/day6" parse-line)]
    (->> (mapcat get-affected-coords parsed-input)
         (group-by first)
         (partition-by first)
@@ -92,9 +89,7 @@
   (reduce (fn [acc i]  (i acc)) 0 cell))
 
 (time
- (let [parsed-input (->> (slurp "puzzle-inputs/2015/day6-test")
-                         (str/split-lines)
-                         (mapv parse-line)
+ (let [parsed-input (->> (file/read-all-lines-and-parse "puzzle-inputs/2015/day6" parse-line)
                          (mapcat get-affected-coords))
        grid  {}]
    (->> parsed-input
