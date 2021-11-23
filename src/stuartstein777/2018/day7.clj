@@ -9,25 +9,27 @@
                    (rest))]
     {v #{k}}))
 
-(defn empty-vals? [[_ v]]
+(defn kv-has-empty-vals? [[_ v]]
   (empty? v))
 
-(defn remove-it-from-vals [it [k v]]
-  [k (remove #(= it %) v)])
+(defn remove-it-from-keys-and-vals [m it]
+  (into (sorted-map)
+        (map (fn [[k v]] [k (remove #(= it %) v)]))
+        (dissoc m it)))
 
 ;; part 1
-(defn solve [m res]
-  (if (empty? m)
-    res
-    (let [it (ffirst (filter empty-vals? m))]
-      (recur (into (sorted-map)
-                   (map (partial remove-it-from-vals it))
-                   (dissoc m it))
-             (str res it)))))
+(defn solve
+  ([m] (solve m ""))
+  ([m res]
+   (if (empty? m)
+     res
+     (let [it (ffirst (filter kv-has-empty-vals? m))]
+       (recur (remove-it-from-keys-and-vals m it)
+              (str res it))))))
 
 (let [parsed-input (->> (file/read-all-lines-and-parse "puzzle-inputs/2018/day7" parse)
                         (apply merge-with into initial))]
-  (solve parsed-input ""))
+  (solve parsed-input))
 
 (comment "answer: " "SCLPAMQVUWNHODRTGYKBJEFXZI")
 
