@@ -1,0 +1,3 @@
+turn on 3,3 through 5,7
+turn off 4,6 through 5,7
+toggle 3,3 through 3,5

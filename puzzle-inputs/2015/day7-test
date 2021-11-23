@@ -1,0 +1,6 @@
+123 -> a
+456 -> b
+a AND b -> c
+a OR b -> d
+e AND 56 -> f
+NOT c -> e
