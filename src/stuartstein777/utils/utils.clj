@@ -1,5 +1,6 @@
 (ns stuartstein777.utils
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.set :as set]))
 
 (defn point->idx
   "Returns array index for given [x y] coordinate."
@@ -39,11 +40,6 @@
 ; => ([:a :d :g] [:b :e :h] [:c :f :i])
 (defn amv [xs]
   (apply map vector xs))
-
-;; calculate binomial coefficient
-(defn binom [n k]
-  (/ (factorial n)
-     (* (factorial k) (factorial (- n k)))))
 
 (defn decimal->ratio [dec]
   (loop [n dec
@@ -86,3 +82,8 @@
   (into {}
         (map (fn [[k v]] [k (remove #(= it %) v)]))
         m))
+
+(defn frest [s]
+  (-> s
+      (first)
+      (rest)))
