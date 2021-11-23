@@ -1,12 +1,10 @@
 (ns stuartstein777.2018.day7
-  (:require [stuartstein777.file :as file]
-            [clojure.set :as set]))
-
-;; part 1
+  (:require [stuartstein777.file :as file]))
 
 (def initial (->> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                   (map (fn [l] {(str l) #{}}))
-                  (apply merge)))
+                  (apply merge)
+                  (into (sorted-map))))
 
 (defn parse [line]
   (let [[k v] (->> line
@@ -15,17 +13,23 @@
                    (rest))]
     {v #{k}}))
 
+(defn empty-vals? [[_ v]]
+  (empty? v))
+
+;; part 1
+(defn solve [m res]
+  (if (= {} m)
+    res
+    (let [it (ffirst (filter empty-vals? m))]
+      (recur (into (sorted-map)
+                   (map (fn [[k v]] [k (remove #(= it %) v)]))
+                   (dissoc m it))
+             (str res it)))))
+
 (let [parsed-input (->> (file/read-all-lines-and-parse "puzzle-inputs/2018/day7" parse)
                         (apply merge-with into initial))]
-  (loop [cur parsed-input
-         res ""]
-    (if (= {} cur)
-      res
-      (let [next (->> cur
-                      (filter (fn [[_ v]] (empty? v)))
-                      (sort-by key)
-                      (ffirst))]
-        (recur (into {}
-                     (map (fn [[k v]] [k (remove #(= next %) v)]))
-                     (dissoc cur next))
-               (str res next))))))
+  (solve parsed-input ""))
+
+(comment "answer: " "SCLPAMQVUWNHODRTGYKBJEFXZI")
+
+;; part 2

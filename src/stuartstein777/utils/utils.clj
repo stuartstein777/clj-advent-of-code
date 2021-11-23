@@ -82,3 +82,7 @@
 (defn swap [v i1 i2]
   (assoc v i2 (v i1) i1 (v i2)))
 
+(defn remove-it-from-all-keys [m it]
+  (into {}
+        (map (fn [[k v]] [k (remove #(= it %) v)]))
+        m))
