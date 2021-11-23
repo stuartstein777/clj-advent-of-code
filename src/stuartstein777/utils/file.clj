@@ -3,7 +3,8 @@
 
 (defn read-all-lines [file]
   (->> (slurp file)
-       (str/split-lines)))
+       (str/split-lines)
+       (remove (fn [l] (= "" l)))))
 
 (defn read-all-lines-and-parse [file parsefn]
   (->> file
