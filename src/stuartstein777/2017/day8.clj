@@ -24,28 +24,24 @@
      :condition (parse-condition con)
      :con-val   (Integer/parseInt cv)}))
 
-(defn get-max-val [m]
-  (->> m
-       vals
-       (apply max)))
+(defn get-max-register [m]
+  (->> m :registers vals (apply max)))
 
-(defn get-largest-register [m]
-  (->> (dissoc m :max)
-       (vals)
-       (apply max)))
+(defn update-running-max [{:keys [max] :as acc}]
+  (let [max-reg (get-max-register acc)]
+    (if (> max-reg max)
+      (assoc acc :max max-reg)
+      acc)))
 
-(defn reducer [{:keys [max] :as acc}
-            {:keys [register operation op-value con-reg condition con-val]}]
-  (let [reg-val     (get acc register 0)
-        con-reg-val (get acc con-reg 0)
-        m (assoc acc register (if (condition con-reg-val con-val)
-                                (operation reg-val op-value)
-                                reg-val))
-        new-max (get-max-val m)]
-    (if (> new-max max)
-      (assoc m :max new-max)
-      m)))
+(defn reducer [acc {:keys [register operation op-value con-reg condition con-val]}]
+  (let [reg-val     (get-in acc [:registers register] 0)
+        con-reg-val (get-in acc [:registers con-reg] 0)]
+    (-> acc
+        (assoc-in [:registers register] (if (condition con-reg-val con-val)
+                                          (operation reg-val op-value)
+                                          reg-val))
+        update-running-max)))
 
 (->> (f/read-all-lines-and-parse "puzzle-inputs/2017/day8" parse)
-     (reduce reducer {:max 0})
-     ((juxt get-largest-register :max)))
+     (reduce reducer {:max 0 :registers {}})
+     ((juxt get-max-register :max)))
