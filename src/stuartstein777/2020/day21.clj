@@ -43,24 +43,28 @@
        (mapcat :ingredients)
        (count)))
 
+(defn get-ingredients-string [isolated-allergens]
+  (->> (sort-by second isolated-allergens)
+       (map first)
+       (str/join ",")))
+
 (defn remove-allergen-and-ingredient [allergen ingredient food]
   {:allergens (disj (:allergens food) allergen)
    :ingredients (disj (:ingredients food) ingredient)})
 
-;; part 1
 (let [foods (->> (f/read-all-lines-and-parse "puzzle-inputs/2020/day21" parse))
       allergens (->> foods
                      (mapcat :allergens)
                      (into #{}))]
   
   (loop [foods                 foods
-         outstanding-allergens allergens]
+         outstanding-allergens allergens
+         isolated-allergens []]
       (if (empty? outstanding-allergens)
-        (count-ingredients foods)
+        [(count-ingredients foods)
+         (get-ingredients-string isolated-allergens)]
         (let [[isolated-ingredient isolated-allergen] (isolate-ingredient outstanding-allergens foods)]
             (recur
              (mapv (partial remove-allergen-and-ingredient isolated-allergen isolated-ingredient) foods)
-             (disj outstanding-allergens isolated-allergen))))))
-
-;; part 2
-
+             (disj outstanding-allergens isolated-allergen)
+             (conj isolated-allergens [isolated-ingredient isolated-allergen]))))))
