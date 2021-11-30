@@ -16,7 +16,7 @@
 
 (let [input (parse-input)]
   (->> (map duplicate-words? input)
-       (filter #(not (seq %)))
+       (filter empty?)
        (count)))
 
 ;; part 2
@@ -24,7 +24,7 @@
   (let [word-sets (map set passphrase)
         all-count (count word-sets)
         distinct-count (count (distinct word-sets))]
-    (zero? (- all-count distinct-count))))
+    (= all-count distinct-count)))
 
 (let [input (parse-input)]
   (->> (filter valid? input)

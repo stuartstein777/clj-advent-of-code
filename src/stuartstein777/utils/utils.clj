@@ -78,7 +78,7 @@
 (defn swap [v i1 i2]
   (assoc v i2 (v i1) i1 (v i2)))
 
-(defn remove-it-from-all-keys [m it]
+(defn remove-it-from-all-vals [m it]
   (into {}
         (map (fn [[k v]] [k (remove #(= it %) v)]))
         m))
@@ -87,3 +87,21 @@
   (-> s
       (first)
       (rest)))
+
+(defn sum-values [x]
+  (->> x
+       vals
+       (reduce + 0)))
+
+(defn trim-str-before-it [s it]
+  (subs s (.indexOf s it)))
+
+
+(defn str-split [re s]
+  (str/split s re))
+
+(defn drop-last-char [s]
+  (->> (butlast s)
+       (apply str)))
+
+

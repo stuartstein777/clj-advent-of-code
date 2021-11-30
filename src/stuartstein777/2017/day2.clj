@@ -7,7 +7,7 @@
        (map #(Integer/parseInt %))))
 
 (defn read-spreadsheet []
-  (->> (slurp "resources/2017/day2")
+  (->> (slurp "puzzle-inputs/2017/day2")
        (str/split-lines)
        (map process-line)))
 
@@ -18,8 +18,8 @@
 
 ;; part 2
 (defn divisibles [row]
-  (for [a row
-        b (rest row)
+  (for [a     row
+        b     (rest row)
         :when (and (not= a b) (zero? (rem a b)))]
     (/ a b)))
 

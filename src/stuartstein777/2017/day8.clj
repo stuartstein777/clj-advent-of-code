@@ -33,7 +33,7 @@
       (assoc acc :max max-reg)
       acc)))
 
-(defn reducer [acc {:keys [register operation op-value con-reg condition con-val]}]
+(defn solve [acc {:keys [register operation op-value con-reg condition con-val]}]
   (let [reg-val     (get-in acc [:registers register] 0)
         con-reg-val (get-in acc [:registers con-reg] 0)]
     (-> acc
@@ -43,5 +43,5 @@
         update-running-max)))
 
 (->> (f/read-all-lines-and-parse "puzzle-inputs/2017/day8" parse)
-     (reduce reducer {:max 0 :registers {}})
+     (reduce solve {:max 0 :registers {}})
      ((juxt get-max-register :max)))
