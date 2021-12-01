@@ -14,13 +14,11 @@
        (map #(Integer/parseInt %))))
 
 ;; Part 1
-(let [inputs (get-and-parse-input)]
-  (calculate-increasing inputs))
-
+(->> (get-and-parse-input)
+     calculate-increasing)
 
 ;; Part 2
-(let [inputs (->> (get-and-parse-input)
-                  (partition 3 1)
-                  (map #(reduce + %)))]
-  (calculate-increasing inputs))
-
+(->> (get-and-parse-input)
+     (partition 3 1)
+     (map #(reduce + %))
+     calculate-increasing)
