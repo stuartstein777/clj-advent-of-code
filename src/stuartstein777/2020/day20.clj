@@ -48,10 +48,16 @@
       (str/split #"\n\n")
       (->> (map parse-tile))))
 
+(->> (parse-input)
+     (map :tile-id)
+     (sort <)
+     (count))
+
+
 ;; ----- solving
-(defn borders-match [tile1 tile2]
-  
-  )
+(defn borders-match [tile1 tile2])
+
+
 ;; how to return the rotation that matches.
 ;; don't want to do the rotations a second time.
 ;; how to check all rotations of tile1 with all rotations of tile2.
@@ -60,64 +66,36 @@
 ;; left-border of B matches right border of A
 ;; if a tile is matched, dont flip it again.
 
-(comment
+;; grid is 12x12
 
-  (let [matched-left-border   #{}
-        matched-right-border  #{}
-        matched-top-border    #{}
-        matched-bottom-border #{}
-        dont-flip             #{}]
-    
-    )
+;; for each tile, match it to every other tile, rotated all directions, flipped and rotated.
+;; create a sparse map of the matches.
+;;
 
-  (let [tiles (->> (parse-input)
-                   (take 5))]
-    (for [tile1 tiles
-          tile2 tiles
-          :when (not= (:tile-id tile1) (:tile-id tile2))]
-      [(:tile-id tile1) (:tile-id tile2)]))
+(loop [tiles (->> (parse-input))
+       corners []]
+  (if (empty? tiles)
+    :done
+    (let [tile (first tiles)]
+      
+      (recur (rest tiles) []))))
 
-
-  '([1249 1693] [1249 1481] [1249 3169] [1249 1229]
-    [1693 1249] [1693 1481] [1693 3169] [1693 1229]
-    [1481 1249] [1481 1693] [1481 3169] [1481 1229]
-    [3169 1249] [3169 1693] [3169 1481] [3169 1229]
-    [1229 1249] [1229 1693] [1229 1481] [1229 3169])
-
-  {:tile-id 1249
-   :tile [["." "." "." "#" "." "." "." "." "." "."]
-          ["#" "." "." "#" "." "." "#" "." "#" "#"]
-          ["#" "#" "." "." "." "." "." "." "." "."]
-          ["#" "." "#" "." "." "." "." "." "." "."]
-          ["." "." "." "." "." "." "." "." "." "."]
-          ["#" "." "." "." "#" "#" "#" "." "." "."]
-          ["#" "." "." "#" "." "." "." "." "." "."]
-          ["#" "." "." "." "#" "#" "." "." "." "."]
-          ["." "." "." "." "." "." "." "." "." "."]
-          ["." "." "." "." "." "#" "." "." "." "#"]]}
-
-
-
-
-
-
-  (defn foo [a b c]
-    (+ a b c))
-
-;; apply
-  (apply foo [1 2 3])
-
-  (defn add [x y]
-    (+ x y))
-
-;; map
-  (map add [1 2 3] [4 5 6])
-
-;; vector
-  (vector 1 2 3)
-
-  (map vector [1 2 3] [4 5 6] [7 8 9])
-
-  (apply map vector [[1 2 3] [4 5 6] [7 8 9]]))
-
+;; can we pick a tile, then find all the tiles that match the sides.
+;; match top, right, bottom, left
+;; how to decide which tile to move onto next.
+;; after each, get the first tile that is placed that doesnt have all 4 directions
+;; either set or nil.
+;; then look for its borders.
+;; if no border matches, then find bordering pieces
+;; when matching a piece, set that matched pieces borders as well with matched piece.
+;; e.g. 1249 top matches to 1385 bottom.
+;; {1249 {:top 1385}
+;;  1385 {:bottom 1249}}
+;; once a tile has all borders accounted for, remove it from available pieces
+;; can we walk the tiles, to set borders without looking: e.g.
+;;      A X
+;;      B C
+;; We are looking at right of C and find X, after placing, if we look, bottom, then right of A
+;; we can see that the bottom of X must be C.
+;; then go up from A and right.
 

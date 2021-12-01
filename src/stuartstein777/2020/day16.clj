@@ -3,6 +3,7 @@
             [clojure.set :as set]))
 
 ;; part 1
+;; ------------------------------------------------------------------------------------------------------------
 (def test-input "class: 1-3 or 5-7\nrow: 6-11 or 33-44\nseat: 13-40 or 45-50\n\nyour ticket:\n7,1,14\n\nnearby tickets:\n7,3,47\n40,4,50\n55,2,20\n38,6,12")
 
 (defn read-input []
@@ -36,12 +37,12 @@
                      (drop 25)
                      (mapcat get-ticket-fields))
         invalid-fields (filter (partial valid-ticket-entry? ranges) tickets)]
-    (prn invalid-fields)
     (reduce + invalid-fields)))
 
 (get-valid-tickets)
 
 ;; part 2
+;; ------------------------------------------------------------------------------------------------------------
 ;; invalid fields
 ;; (989 3 18 0 975 990 997 18 4 989 990 17 976 988 21 984 19 8 1 979 982 13 13 21 11 13 3 18 991 975 985 20 15
 ;; 19 996 989 15 982 994 995 16 16 20 994 20 999)
