@@ -6,13 +6,13 @@
 (defn calculate-increasing [xs]
   (->> (map < xs (rest xs))
        (filter true?)
-       (count)))
+       count))
 
 (defn parser [n]
   (Integer/parseInt n))
 
 ;; Part 1
-(->> (f/read-all-lines-and-parse puzzle-input parser)
+(-> (f/read-all-lines-and-parse puzzle-input parser)
      calculate-increasing)
 
 ;; Part 2

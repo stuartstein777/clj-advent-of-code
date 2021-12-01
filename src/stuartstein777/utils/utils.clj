@@ -105,3 +105,6 @@
        (apply str)))
 
 
+(defn map-f-and-keep-true [f & xses]
+  (->> (apply (partial map f) xses)
+       (filter true?)))
