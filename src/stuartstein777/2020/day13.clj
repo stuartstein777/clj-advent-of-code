@@ -1,10 +1,12 @@
 (ns stuarts.day13
   (:require [clojure.string :as str]
             [clojure.edn :as edn]))
-(set! *unchecked-math* :warn-on-boxed)
+
+(set! *unchecked-math* nil)
+
 ;; Part 1
 (defn parse-real-input []
-  (let [[dep buses] (->> (slurp "resources/2020/day13")
+  (let [[dep buses] (->> (slurp "puzzle-inputs/2020/day13")
                          (str/split-lines))
         earliest-departure (Integer/parseInt dep)
         bus-ids (->> (str/split buses #",")
@@ -22,6 +24,8 @@
             (* (- time earliest) id))
           (recur (inc time)))))))
 
+(time (solve-part1))
+
 ;; Part 2
 (defn next-match [start increment busid busno]
   (loop [cur (+ start increment)]
@@ -30,7 +34,7 @@
       (recur (+ cur increment)))))
 
 (defn parse-part-2 []
-  (->> (str/split (->> (slurp "resources/2020/day13")
+  (->> (str/split (->> (slurp "puzzle-inputs/2020/day13")
                        (str/trim)
                        (str/split-lines)
                        (second)) #",")
@@ -39,10 +43,11 @@
        (map (fn [[pos id]] {:pos pos :id (Integer/parseInt id)}))
        (sort-by :pos)))
 
-(let [input (parse-part-2)]
-  (->> (reduce (fn [{:keys [cur increment]} {:keys [pos id]}]
-                 {:cur       (next-match cur increment id pos)
-                  :increment (* increment id)})
-               {:cur (:pos (first input)) :increment (:id (first input))}
-               (rest input))
-       (:cur)))
+(time
+ (let [input (parse-part-2)]
+   (->> (reduce (fn [{:keys [cur increment]} {:keys [pos id]}]
+                  {:cur       (next-match cur increment id pos)
+                   :increment (* increment id)})
+                {:cur (:pos (first input)) :increment (:id (first input))}
+                (rest input))
+        (:cur))))
