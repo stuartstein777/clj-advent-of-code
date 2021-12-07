@@ -104,7 +104,15 @@
   (->> (butlast s)
        (apply str)))
 
+(defn range-inclusive [a b]
+  (range a (inc b)))
 
 (defn map-f-and-keep-true [f & xses]
   (->> (apply (partial map f) xses)
        (filter true?)))
+
+(defn parse-list-of-ints [xs]
+  (map #(Integer/parseInt %) xs))
+
+(defn map-into [f i xs]
+  (into i (map f xs)))
