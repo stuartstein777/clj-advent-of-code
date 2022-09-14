@@ -76,3 +76,4 @@
      (map reverse)
      (map score)
      (get-middle-score))
+

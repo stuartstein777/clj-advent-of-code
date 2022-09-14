@@ -28,7 +28,6 @@
   [a b]
   (if (zero? b)
     a
-    (recur b (mod a b))))
 
 (defn lcmu 
   "least-common-multiple"
@@ -116,3 +115,6 @@
 
 (defn map-into [f i xs]
   (into i (map f xs)))
+
+(defn fsec [xs]
+  (second (first xs)))

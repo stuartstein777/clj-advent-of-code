@@ -26,3 +26,5 @@
           distance  (Integer/parseInt (apply str (rest (first wire))))]
       (recur (rest wire) (concat path (get-intermediate-path (last path) direction distance))))))
 
+
+
