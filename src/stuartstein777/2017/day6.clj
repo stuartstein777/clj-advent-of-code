@@ -18,7 +18,6 @@
         (recur idx (nth xs idx) (inc idx))
         (recur biggest-idx biggest (inc idx))))))
 
-
 (defn increment-xs-at-idx [xs idx]
   (update xs idx inc))
 
@@ -28,11 +27,9 @@
 (defn redistribute [xs idx-biggest]
   (let [biggest (nth xs idx-biggest)
         cnt (count xs)]
-    #_(prn biggest)
     (loop [cur-idx (mod (inc idx-biggest) cnt)
            biggest biggest
            current-state (zero-xs-at-idx xs idx-biggest)]
-      #_(prn cur-idx current-state)
       (if (= 0 biggest)
         current-state
         (if (zero? biggest)
@@ -52,5 +49,3 @@
       (if (seen-states new-state)
         [cycles (- cycles (seen-states new-state))]
         (recur new-state (assoc seen-states new-state cycles) (inc cycles))))))
-
-
