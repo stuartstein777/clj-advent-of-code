@@ -42,15 +42,15 @@
                  (increment-xs-at-idx current-state cur-idx)))))))
 
 
-;; part 1
+;; part 1 & part 2 (soln for part 1 is first item in vector, part 2 is second)
 (let [puzzle-input (parse-input)]
   (loop [current-state puzzle-input
-         seen-states #{}
+         seen-states {current-state 0}
          cycles 1]
     (let [highest-idx (get-largest-block-idx current-state)
           new-state (redistribute current-state highest-idx)]
       (if (seen-states new-state)
-        cycles
-        (recur new-state (conj seen-states new-state) (inc cycles))))))
+        [cycles (- cycles (seen-states new-state))]
+        (recur new-state (assoc seen-states new-state cycles) (inc cycles))))))
 
-;; part 2
+
