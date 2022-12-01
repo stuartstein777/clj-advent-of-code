@@ -4,29 +4,45 @@
             [stuartstein777.file :as f]
             [stuartstein777.utils :as u]))
 
-
 (def puzzle-input "puzzle-inputs/2021/day2")
 
-(defn parser [l]
-  (let [[dir v] (str/split l #" ")]
-    {:dir dir
-     :v (Integer/parseInt v)}))
+;; Advent of Code 2021 - Day 2 - Part 1
 
-; part 1
-(->> (f/read-all-lines-and-parse puzzle-input parser)
-     (reduce (fn [[x y] {:keys [dir v]}]
-               (condp = dir
-                 "forward" [(+ x v) y]
-                 "up" [x (- y v)]
-                 "down" [x (+ y v)])) [0 0])
+(defn parse [line]
+  (let [[dir vel] (str/split line #" ")]
+    {:dir dir
+     :vel (Integer/parseInt vel)}))
+
+(defn move [[x y] {:keys [dir vel]}]
+  (condp = dir
+    "forward" [(+ x vel) y]
+    "down"    [x (+ y vel)]
+    "up"      [x (- y vel)]))
+
+(->> puzzle-input
+     slurp
+     str/split-lines
+     (map parse)
+     (reduce move [0 0])
      (reduce * 1))
 
-; part 2
-(->> (f/read-all-lines-and-parse puzzle-input parser)
-     (reduce (fn [[x y aim] {:keys [dir v]}]
-               (condp = dir
-                 "forward" [(+ x v) (+ y (* aim v)) aim]
-                 "up"      [x y (- aim v)]
-                 "down"    [x y (+ aim v)])) [0 0 0])
+;; Answer for part 1: 1893605
+
+;; Part 2
+
+
+(defn move2 [[x y aim] {:keys [dir vel]}]
+  (condp = dir
+    "forward" [(+ x vel) (+ y (* aim vel)) aim]
+    "down"    [x y (+ aim vel)]
+    "up"      [x y (- aim vel)]))
+
+(->> puzzle-input
+     slurp
+     str/split-lines
+     (map parse)
+     (reduce move2 [0 0 0])
      (take 2)
      (reduce * 1))
+
+;; Answer for part 2: 2120734350
