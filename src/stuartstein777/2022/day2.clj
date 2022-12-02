@@ -2,6 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.set :as set]))
 
+(def test-input "A Y\nB X\nC Z\n")
+
 (def scorer {"rock" 1, "paper" 2, "scissors", 3})
 
 (def comparer {"rock"     "paper"
@@ -16,7 +18,7 @@
        :else 0)))
 
 (defn play-part1 [rounds]
-  (reduce (fn [acc i] (+ acc (score-round i))) 0 rounds))
+  (reduce (fn [score round] (+ score (score-round round))) 0 rounds))
 
 
 (defn parse-input [input]
@@ -36,20 +38,15 @@
      play-part1)
 
 ;; part 2
-(def test-input
-  "A Y\nB X\nC Z\n")
-
-
 (defn play-part2 [rounds]
-  (reduce (fn [acc [p1 res]] 
-            (+ acc (cond 
-                     (= res "lose")
+  (reduce (fn [score [p1 res]] 
+            (+ score (condp = res
+                     "lose"
                      (score-round [p1 ((set/map-invert comparer) p1)])
                      
-                     (= res "draw")
+                     "draw"
                      (score-round [p1 p1])
                      
-                     :else
                      (score-round [p1 (comparer p1)])))) 0 rounds))
 
 (->> (parse-input (slurp "puzzle-inputs/2022/day2"))
