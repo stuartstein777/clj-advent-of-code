@@ -17,8 +17,8 @@ CrZsJsPPZsGzwwsLwLmpwMDw")
 
 (defn split-compartments [s]
   (let [compartment-size (/ (count s) 2)]
-    [(into #{} (subs s 0 compartment-size))
-     (into #{} (subs s compartment-size))]))
+    [(subs s 0 compartment-size)
+     (subs s compartment-size)]))
 
 (defn score [xs]
   (reduce (fn [acc i] (+ acc (score-character i))) 0 xs))
