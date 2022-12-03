@@ -30,15 +30,15 @@ CrZsJsPPZsGzwwsLwLmpwMDw")
 ;; part 1
 (->>
  (slurp "puzzle-inputs/2022/day3")
- (str/split-lines)
+ str/split-lines
  (map split-compartments)
  (mapcat find-common)
- (score))
+ score)
 
 ;; part 2
 (->>
  (slurp "puzzle-inputs/2022/day3")
- (str/split-lines)
+ str/split-lines
  (partition 3)
  (mapcat find-common)
- (score))
+ score)
