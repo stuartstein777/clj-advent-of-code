@@ -27,20 +27,22 @@
      (and (>= a1 b1) (>= a2 b2))
      (and (<= a1 b1) (>= a2 b1)))))
 
+(defn parse [s]
+  (->> s
+       str/split-lines
+       (map #(str/split % #","))
+       (map parse-block)))
+
 ;; part 1
 (->> #_test-input
      (slurp "puzzle-inputs/2022/day4")
-     (str/split-lines)
-     (map #(str/split % #","))
-     (map parse-block)
+     (parse)
      (filter fully-contains?)
      (count))
 
 ;; part 2
 (->> #_test-input
      (slurp "puzzle-inputs/2022/day4")
-     (str/split-lines)
-     (map #(str/split % #","))
-     (map parse-block)
+     (parse)
      (filter overlaps?)
      (count))
