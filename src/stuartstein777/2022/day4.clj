@@ -9,11 +9,9 @@
 6-6,4-6
 2-6,4-8")
 
-(defn parse-block [[a b]]
-  [(->> (str/split a #"-")
-        (map parse-long))
-   (->> (str/split b #"-")
-        (map parse-long))])
+(defn parse-block [ab]
+  (map #(->> (str/split % #"-")
+             (map parse-long)) ab))
 
 (defn fully-contains? [[[a1 a2] [b1 b2]]]
   (or
