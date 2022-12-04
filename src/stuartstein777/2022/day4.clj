@@ -36,13 +36,13 @@
 ;; part 1
 (->> #_test-input
      (slurp "puzzle-inputs/2022/day4")
-     (parse)
+     parse
      (filter fully-contains?)
-     (count))
+     count)
 
 ;; part 2
 (->> #_test-input
      (slurp "puzzle-inputs/2022/day4")
-     (parse)
+     parse
      (filter overlaps?)
-     (count))
+     count)
