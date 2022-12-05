@@ -2,18 +2,17 @@
   (:require [clojure.string :as str]))
 
 (defn remove-empty [stacks]
-  (reduce (fn [acc i]
-            (assoc acc i (drop-while #(= "-" %) (acc i))))
+  (reduce (fn [acc i] (assoc acc i (remove #(= "-" %) (acc i))))
           stacks
           (range 1 (inc (count stacks)))))
 
 (defn parse-stack [stack]
   (-> stack
       (str/replace #"\s\s\s\s" "-")
-      #_#_#_#_(str/split-lines)
-      (->> (map #(str/replace % #"]\[" "] [")))
+      (str/replace #"\[|]| " "")
+      (str/split-lines)
       butlast
-      (->> (map #(str/split % #" "))
+      (->> (map #(str/split % #""))
            (apply map vector)
            (zipmap (range 1 (count stack)))
            (remove-empty))))
@@ -28,24 +27,23 @@
   (let [[stack instructions]
         (-> (slurp "puzzle-inputs/2022/day5")
             (str/split #"\n\n"))]
-    (parse-stack stack)
-    #_[(parse-stack stack) (map parse-instruction (str/split-lines instructions))]
-    ))
+    [(parse-stack stack) (map parse-instruction (str/split-lines instructions))]))
 
-(parse)
 ;; part 1
 (defn move-pt1 [stack [to-move from to]]
   (-> stack
       (assoc from (drop to-move (stack from)))
       (update to (partial apply conj) (take to-move (stack from)))))
 
-(let [[stack instructions] (->> (parse))]
-  (as-> (reduce move-pt1 stack instructions) o
-        (sort o)
-        (map (comp first second) o)
-        (apply str o)
-        (str/replace o #"\[|]" "")))
+(defn solve [move-fn]
+  (let [[stack instructions] (->> (parse))]
+    (as-> (reduce move-fn stack instructions) o
+          (sort o)
+          (map (comp first second) o)
+          (apply str o)
+          (str/replace o #"\[|]" ""))))
 
+(solve move-pt1)
 ;; PTWLTDSJV
 
 ;; Part 2
@@ -54,11 +52,6 @@
       (assoc from (drop to-move (stack from)))
       (update to (partial apply conj) (reverse (take to-move (stack from))))))
 
-(let [[stack instructions] (->> (parse))]
-  (as-> (reduce move-pt2 stack instructions) o
-        (sort o)
-        (map (comp first second) o)
-        (apply str o)
-        (str/replace o #"\[|]" "")))
+(solve move-pt2)
 
 ;; "WZMFVGGZP"
