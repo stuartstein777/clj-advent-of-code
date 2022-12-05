@@ -32,24 +32,32 @@
 
 ;; part 1
 
-(defn move [stack [to-move from to]]
+(defn move-pt1 [stack [to-move from to]]
   (-> stack
       (assoc from (drop to-move (stack from)))
       (update to (partial apply conj) (take to-move (stack from)))))
 
-
 (let [[stack instructions] (->> (parse))]
-  (str/replace 
-   (->> (reduce move stack instructions)
-        (sort)
-        (map (comp first second))
-        (apply str))
-   #"\[|]"
-   ""))
-  
-
+  (as-> (reduce move-pt1 stack instructions) o
+        (sort o)
+        (map (comp first second) o)
+        (apply str o)
+        (str/replace o #"\[|]" "")))
 
 ;; PTWLTDSJV
 
 ;; Part 2
+(defn move-pt2 [stack [to-move from to]]
+  (-> stack
+      (assoc from (drop to-move (stack from)))
+      (update to (partial apply conj) (reverse (take to-move (stack from))))))
+
+(let [[stack instructions] (->> (parse))]
+  (as-> (reduce move-pt2 stack instructions) o
+        (sort o)
+        (map (comp first second) o)
+        (apply str o)
+        (str/replace o #"\[|]" "")))
+
+;; "WZMFVGGZP"
 
