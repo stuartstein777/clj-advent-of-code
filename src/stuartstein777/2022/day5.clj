@@ -3,14 +3,14 @@
 
 (defn remove-empty [stacks]
   (reduce (fn [acc i]
-            (assoc acc i (drop-while #(= "[-]" %) (acc i))))
+            (assoc acc i (drop-while #(= "-" %) (acc i))))
           stacks
           (range 1 (inc (count stacks)))))
 
 (defn parse-stack [stack]
   (-> stack
-      (str/replace #"\s\s\s\s" "[-]")
-      (str/split #"\n")
+      (str/replace #"\s\s\s\s" "-")
+      #_#_#_#_(str/split-lines)
       (->> (map #(str/replace % #"]\[" "] [")))
       butlast
       (->> (map #(str/split % #" "))
@@ -28,10 +28,12 @@
   (let [[stack instructions]
         (-> (slurp "puzzle-inputs/2022/day5")
             (str/split #"\n\n"))]
-    [(parse-stack stack) (map parse-instruction (str/split-lines instructions))]))
+    (parse-stack stack)
+    #_[(parse-stack stack) (map parse-instruction (str/split-lines instructions))]
+    ))
 
+(parse)
 ;; part 1
-
 (defn move-pt1 [stack [to-move from to]]
   (-> stack
       (assoc from (drop to-move (stack from)))
@@ -60,4 +62,3 @@
         (str/replace o #"\[|]" "")))
 
 ;; "WZMFVGGZP"
-
