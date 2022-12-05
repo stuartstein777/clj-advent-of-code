@@ -37,21 +37,20 @@
 
 (defn solve [move-fn]
   (let [[stack instructions] (->> (parse))]
-    (as-> (reduce move-fn stack instructions) o
-          (sort o)
-          (map (comp first second) o)
-          (apply str o)
-          (str/replace o #"\[|]" ""))))
+    (as-> (reduce move-fn stack instructions) ¬
+          (sort ¬)
+          (map (comp first second) ¬)
+          (apply str ¬)
+          (str/replace ¬ #"\[|]" ""))))
 
 (solve move-pt1)
 ;; PTWLTDSJV
 
-;; Part 2
+;; part 2
 (defn move-pt2 [stack [to-move from to]]
   (-> stack
       (assoc from (drop to-move (stack from)))
       (update to (partial apply conj) (reverse (take to-move (stack from))))))
 
 (solve move-pt2)
-
 ;; "WZMFVGGZP"
