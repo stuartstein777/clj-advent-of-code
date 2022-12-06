@@ -13,11 +13,23 @@
 ;; part 2
 (def test-input "abcde\nfghij\nklmno\npqrst\nfguij\naxcye\nwvxyz")
 
-(let [c (->> (slurp "puzzle-inputs/2018/day2")
-             (str/trim)
-             (map (fn [p] (if (= p \() 1 -1)))
-             (reductions +))]
-  (->> (take-while #(not= -1 %) c)
-       (count)
-       (inc)))
+(defn differ-by-1 [x y]
+  (and (not= x y)
+       (= 1 (count (filter false? (map #(= %1 %2) x y))))))
 
+(defn get-shared-chars [x y]
+  (apply str (remove nil? (map #(if (= %1 %2) %1 nil) x y))))
+
+(get-shared-chars "abc" "axc")
+
+(let [strs (->> (slurp "puzzle-inputs/2018/day2")
+                #_test-input
+                (str/split-lines))]
+  (->> (for [x strs
+             y strs
+             :when (differ-by-1 x y)]
+         #{x y}
+         )
+       (distinct)
+       (first)
+       (apply get-shared-chars)))
