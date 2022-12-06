@@ -15,7 +15,6 @@
     n))
 
 (defn parse-instruction [instr]
-  (prn instr)
   (match [instr]
     [[_ "AND" _ _]]    {:command :and, :params [(parse-number (first instr)) (parse-number (nth instr 2))], :dest (last instr)}
     [[_ "OR" _ _]]     {:command :or, :params [(parse-number (first instr)) (parse-number (nth instr 2))], :dest (last instr)}
@@ -98,17 +97,26 @@
     mem))
 
 ;; part 1
-(get
- (->> (slurp "puzzle-inputs/2015/day7")
-      (str/split-lines)
-      (mapv parse-line)
-      (vec)
-      (process-instructions {}))
- "a")
+(defn run-part-1 []
+  (->> (slurp "puzzle-inputs/2015/day7")
+       (str/split-lines)
+       (mapv parse-line)
+       (vec)
+       (process-instructions {"b" 956})))
+ 
+(get (run-part-1) "a")
 
 ;; part 2
+(defn run-part-2 []
+  (->>  (str/replace (slurp "puzzle-inputs/2015/day7")
+                     "14146 -> b"
+                     "956 -> b")
+   
+   (str/split-lines)
+   (mapv parse-line)
+   (vec)
+   (process-instructions {})))
 
+(get (run-part-1) "a")
   
-  
-
 
