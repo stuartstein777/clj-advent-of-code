@@ -12,10 +12,15 @@
        (BigInteger. 1)
        (format "%032x")))
 
+;; Part 1
 (loop [i 0]
   (println i)
-  (if (str/starts-with? (md5 (str "ckczppom" i)) "000000")
+  (if (str/starts-with? (md5 (str "ckczppom" i)) "00000")
     i
     (recur (inc i))))
 
 ;; Part 2
+(loop [i 0]
+  (if (str/starts-with? (md5 (str "ckczppom" i)) "000000")
+    i
+    (recur (inc i))))
