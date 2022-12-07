@@ -24,7 +24,9 @@
      (mapv get-file-info files)]))
 
 (defn update-file-structure [[dirs files] dir fs]
-    (assoc fs dir {:files (set files) :dirs (set dirs)}))
+    (assoc fs dir {:files (set files)
+                   :dirs (set dirs)
+                   :sizes (apply + (map second files))}))
 
 (defn get-listings [rcmds]
   (->> rcmds
@@ -49,35 +51,102 @@
       (let [listings (get-listings rcmds)
             files-dirs (process-listings listings)
             updated-file-structure
-            (update-file-structure files-dirs (last stack) file-structure)]
+            (update-file-structure files-dirs stack file-structure)]
         (recur stack updated-file-structure (drop (count listings) rcmds)))
       
       :else
       (recur stack file-structure rcmds))
     file-structure))
 
-(->> (slurp "puzzle-inputs/2022/day7-test")
+(defn reducer [acc i]
+  (let [k (key i)
+        size (:sizes (val i))]
+    (loop [s k
+           acc acc]
+      (if (seq s)
+        (recur (pop s) (update acc s (fnil (partial + size) 0)))
+        acc))))
+
+(defn simplify-dir-sizes [fs]
+  (let [dir-sizes (zipmap (keys fs) (repeat 0))]
+    (reduce reducer dir-sizes fs)))
+
+(defn get-dirs-under-100k [dirs]
+  (->> (filter (fn [[_ x]] (<= x 100000)) dirs)
+       (map second)
+       (apply +)))
+
+(->> (slurp "puzzle-inputs/2022/day7")
      (str/split-lines)
-     (process-commands ["/"] {}))
+     (process-commands ["/"] {})
+     (simplify-dir-sizes)
+     (get-dirs-under-100k))
 
-;; outer dirctory = /
+;; 1077191
 
 
-;; keys are directories
-{"/" {:dirs #{"a" "d"} :files #{{:name "b.txt" :size 14848514}
-                            {:name "c.dat" :size 8504156}}}
- 
- "a" {:dirs #{"e"} :files #{{:name "f" :size 29116}
-                            {:name "g" :size 2557}
-                            {:name "h.lst" :size 62596}}}
- 
- "d" {:dirs #{} :files #{{:name "j" :size 4060174}
-                       {:name "d.log" :size 8033020}
-                       {:name "d.ext" :size 5626152}
-                       {:name "k" :size 721496}}}
- 
- "e" {:dirs #{} :files #{{:name "i" :size 584}}}
- }
+(comment
+  {["/"]         {:files #{["c.dat" 8504156] ["b.txt" 14848514]},
+                  :dirs #{"d" "a"},
+                  :sizes 23352670},
+   ["/" "a"]     {:files #{["f" 29116] ["g" 2557] ["h.lst" 62596]},
+                  :dirs #{"e"},
+                  :sizes 94269},
+   ["/" "a" "e"] {:files #{["i" 584]},
+                  :dirs #{},
+                  :sizes 584},
+   ["/" "d"]     {:files #{["k" 7214296] ["j" 4060174] ["d.log" 8033020] ["d.ext" 5626152]},
+                  :dirs #{},
+                  :sizes 24933642}}
+
+
+  (->>
+   (filter (fn [[_ x]] (<= x 100000))
+           [[["/"] (+ 23352670 94269 584 24933642)]
+            [["/" "a"] (+ 94269 584)]
+            [["/" "a" "e"] (+ 584)]
+            [["/d"] (+ 24933642)]])
+   (map second)
+   (reduce +))
+
+  (let [stack ["/" "a" "e"]]
+    (pop stack)
+    )
+  )
+
+
+;; iterate the keys, pull each directory out of the key,
+;; update each previous directory.
+;; pop each dir off the end, update all earlier stacks.
+
+;; acc here is map of directory stack to directory size
+;; i is directory stack and :size of that stack.
+
+
+
+(update {} ["/" "a"] (fnil (partial + 50) 0))
+
+(let [fs {["/"]         {:files #{["c.dat" 8504156] ["b.txt" 14848514]},
+                         :dirs #{"d" "a"},
+                         :sizes 23352670},
+          ["/" "a"]     {:files #{["f" 29116] ["g" 2557] ["h.lst" 62596]},
+                         :dirs #{"e"},
+                         :sizes 94269},
+          ["/" "a" "e"] {:files #{["i" 584]},
+                         :dirs #{},
+                         :sizes 584},
+          ["/" "d"]     {:files #{["k" 7214296] ["j" 4060174] ["d.log" 8033020] ["d.ext" 5626152]},
+                         :dirs #{},
+                         :sizes 24933642}}]
+  (let [dir-sizes (zipmap (keys fs) (repeat 0))]
+    (reduce reducer dir-sizes fs)
+    ))
+
+
+
+
+
+
 
 
 
