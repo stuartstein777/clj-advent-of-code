@@ -33,7 +33,6 @@
       (take-while #(not (str/starts-with? % "$")))))
 
 (defn process-commands [stack file-structure [cmd & rcmds]]
-  (prn stack)
   (if  (seq cmd)
     (cond
       (str/starts-with? cmd "$ cd ..")
@@ -84,69 +83,25 @@
 
 ;; 1077191
 
+;; part 2
+;; Total space available 70000000
+;; Need unused space of  30000000
+;; 
 
-(comment
-  {["/"]         {:files #{["c.dat" 8504156] ["b.txt" 14848514]},
-                  :dirs #{"d" "a"},
-                  :sizes 23352670},
-   ["/" "a"]     {:files #{["f" 29116] ["g" 2557] ["h.lst" 62596]},
-                  :dirs #{"e"},
-                  :sizes 94269},
-   ["/" "a" "e"] {:files #{["i" 584]},
-                  :dirs #{},
-                  :sizes 584},
-   ["/" "d"]     {:files #{["k" 7214296] ["j" 4060174] ["d.log" 8033020] ["d.ext" 5626152]},
-                  :dirs #{},
-                  :sizes 24933642}}
+(defn get-dirs-big-enough [to-free dirs]
+  (filter (fn [[_ x]] (>= x to-free)) dirs))
 
-
-  (->>
-   (filter (fn [[_ x]] (<= x 100000))
-           [[["/"] (+ 23352670 94269 584 24933642)]
-            [["/" "a"] (+ 94269 584)]
-            [["/" "a" "e"] (+ 584)]
-            [["/d"] (+ 24933642)]])
-   (map second)
-   (reduce +))
-
-  (let [stack ["/" "a" "e"]]
-    (pop stack)
-    )
-  )
-
-
-;; iterate the keys, pull each directory out of the key,
-;; update each previous directory.
-;; pop each dir off the end, update all earlier stacks.
-
-;; acc here is map of directory stack to directory size
-;; i is directory stack and :size of that stack.
-
-
-
-(update {} ["/" "a"] (fnil (partial + 50) 0))
-
-(let [fs {["/"]         {:files #{["c.dat" 8504156] ["b.txt" 14848514]},
-                         :dirs #{"d" "a"},
-                         :sizes 23352670},
-          ["/" "a"]     {:files #{["f" 29116] ["g" 2557] ["h.lst" 62596]},
-                         :dirs #{"e"},
-                         :sizes 94269},
-          ["/" "a" "e"] {:files #{["i" 584]},
-                         :dirs #{},
-                         :sizes 584},
-          ["/" "d"]     {:files #{["k" 7214296] ["j" 4060174] ["d.log" 8033020] ["d.ext" 5626152]},
-                         :dirs #{},
-                         :sizes 24933642}}]
-  (let [dir-sizes (zipmap (keys fs) (repeat 0))]
-    (reduce reducer dir-sizes fs)
-    ))
-
-
-
-
-
-
-
-
-
+(let [dir-sizes (->> (slurp "puzzle-inputs/2022/day7")
+                     (str/split-lines)
+                     (process-commands ["/"] {})
+                     (simplify-dir-sizes))
+      total-space    70000000
+      required-space 30000000
+      total-taken    (dir-sizes ["/"])
+      available      (- total-space total-taken)
+      to-free        (- required-space available)]
+  (->> dir-sizes
+       (get-dirs-big-enough to-free)
+       (sort-by second <)
+       (first)
+       (second)))
