@@ -14,19 +14,17 @@
     [idx y])
   )
 
-(defn get-visible-trees-l->r [dir w row y]
-  #_(prn y row)
+(defn get-visible-trees-l->r [row]
+  #_(prn row)
   (let [last-idx (dec (count row))]
     (loop [idx 0
            biggest -1
            visible []]
       (if (<= idx last-idx) 
-        (let [cur (row idx)]
-          (prn "biggest: " biggest ", cur: " cur)
+        (let [[cur xy] (row idx)]
+          #_(prn cur xy)
           (if (> cur biggest)
-            (do
-              (prn "adding" cur "@" (get-coords dir w idx y) "can be seen" dir)
-              (recur (inc idx) cur (conj visible (get-coords dir w idx y))))
+            (recur (inc idx) cur (conj visible xy))
             (recur (inc idx) biggest visible)))
         visible))))
 
@@ -35,23 +33,19 @@
 ;                                2 5 5 1 2
 ;                        :l->r   _ _            [0 1] [1 1]
 ;                        :r->l       _   _      [2 1] [4 1]
-(get-visible-trees-l->r :l->r 5 [2 5 5 1 2] 1)
-(get-visible-trees-l->r :r->l 5 [2 1 5 5 2] 1)
 
 (defn reverse-rows [grid]
   (mapv (comp vec reverse) grid))
 
 (defn get-visible-trees [grid]
-  (let [rg (range (count (first grid)))
-        rgc (count (first grid))]
-    (set/union 
-     (into #{} (mapcat (partial get-visible-trees-l->r :l->r rgc) grid rg))
-     (into #{} (mapcat (partial get-visible-trees-l->r :r->l rgc) (reverse-rows grid) (reverse rg)))
-     (into #{} (mapcat (partial get-visible-trees-l->r :t->b rgc) (apply map vector grid) rg))
-     (into #{} (mapcat (partial get-visible-trees-l->r :b->t rgc) (reverse-rows (apply map vector grid)) (reverse rg)))
-     )))
+  (set/union 
+   (into #{} (mapcat get-visible-trees-l->r grid))
+   (into #{} (mapcat get-visible-trees-l->r (reverse-rows grid)))
+   (into #{} (mapcat get-visible-trees-l->r (apply map vector grid)))
+   (into #{} (mapcat get-visible-trees-l->r (reverse-rows (apply map vector grid))))
+   ))
 
-(->> (slurp "puzzle-inputs/2022/day8-test")
+(->> (slurp "puzzle-inputs/2022/day8")
      (str/split-lines)
      (mapv (fn [l] (->> (str/split l #"")
                        (mapv parse-long))))
@@ -59,8 +53,8 @@
              (mapv (fn [y n] [n [x y]])
                   (range (count r)) r)) (range))
      #_(mapv parse-line)
-     #_(get-visible-trees)
-     #_(count))
+     (get-visible-trees)
+     (count))
 
 [[[3 [0 0]] [0 [0 1]] [3 [0 2]] [7 [0 3]] [3 [0 4]]]
  [[2 [1 0]] [5 [1 1]] [5 [1 2]] [1 [1 3]] [2 [1 4]]]
