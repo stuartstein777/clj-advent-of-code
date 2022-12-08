@@ -11,8 +11,7 @@
   (condp = dir
     :l->r [idx y]
     :r->l [(dec (- w idx)) y]
-    [idx y])
-  )
+    [idx y]))
 
 (defn get-visible-trees-l->r [row]
   #_(prn row)
@@ -20,7 +19,7 @@
     (loop [idx 0
            biggest -1
            visible []]
-      (if (<= idx last-idx) 
+      (if (<= idx last-idx)
         (let [[cur xy] (row idx)]
           #_(prn cur xy)
           (if (> cur biggest)
@@ -28,6 +27,8 @@
             (recur (inc idx) biggest visible)))
         visible))))
 
+;; pass in current set ?
+;; if current co-ord is in set, don't do the checks. 
 
 ;                                0 1 2 3 4
 ;                                2 5 5 1 2
@@ -38,23 +39,25 @@
   (mapv (comp vec reverse) grid))
 
 (defn get-visible-trees [grid]
-  (set/union 
+  (set/union
    (into #{} (mapcat get-visible-trees-l->r grid))
    (into #{} (mapcat get-visible-trees-l->r (reverse-rows grid)))
    (into #{} (mapcat get-visible-trees-l->r (apply map vector grid)))
-   (into #{} (mapcat get-visible-trees-l->r (reverse-rows (apply map vector grid))))
-   ))
+   (into #{} (mapcat get-visible-trees-l->r (reverse-rows (apply map vector grid))))))
 
 (->> (slurp "puzzle-inputs/2022/day8")
      (str/split-lines)
      (mapv (fn [l] (->> (str/split l #"")
-                       (mapv parse-long))))
+                        (mapv parse-long))))
      (mapv (fn [x r]
              (mapv (fn [y n] [n [x y]])
-                  (range (count r)) r)) (range))
-     #_(mapv parse-line)
+                   (range (count r)) r)) (range))
      (get-visible-trees)
      (count))
+
+;; 1763
+
+;; Part 2
 
 [[[3 [0 0]] [0 [0 1]] [3 [0 2]] [7 [0 3]] [3 [0 4]]]
  [[2 [1 0]] [5 [1 1]] [5 [1 2]] [1 [1 3]] [2 [1 4]]]
@@ -63,18 +66,139 @@
  [[3 [4 0]] [5 [4 1]] [3 [4 2]] [9 [4 3]] [0 [4 4]]]]
 
 
-(comment
-  (reverse (range 5))
+
+;; summary = {:visible {[0 0] 1, [0 1] 2}
+;;            :biggest-seen {[0 0] 7, [0 1] 9}}
+;; if doesnt exist for visible or biggest for that [x y], fnil to -1
+
+(defn update-previous [summary]
+  
   )
 
-[;0 1 2 3 4
- [3 0 3 7 3] ; 0
- [2 5 5 1 2] ; 1
- [6 5 3 3 2] ; 2
- [3 3 5 4 9] ; 3
- [3 5 3 9 0] ; 4
- ]
+;; process a row
+(defn get-scenic-score [summary row]
+  (let [cnt (count row)]
+    (loop [idx     1
+           summary summary]
+      ;; if we are at end of row, return the summary generated.
+      (if (= idx cnt)
+        summary
+        ;; want to check if the next 
+        (let [prev]) 
+        
+        ))))
 
-[0 0]
-[4 0]
-[3 0]
+;;(update {} [0 0] (fnil inc 0))
+
+;; process the grid - return the summary.
+(defn get-scenic-scores [summary grid]
+  (reduce get-scenic-score summary grid))
+
+
+
+(defn solve [grid]
+  (let [summary {:visible {}
+                 :biggest-seen {}}]
+  ;; map over each row. Deal with each row l->r
+    (-> summary
+        (get-scenic-scores grid)
+        (get-scenic-scores (reverse-rows grid))
+        (get-scenic-scores (apply map vector grid))
+        (get-scenic-scores (apply map vector grid))
+        (get-scenic-scores (reverse-rows (apply map vector grid))))))
+
+(->> (slurp "puzzle-inputs/2022/day8-test")
+     (str/split-lines)
+     (mapv (fn [l] (->> (str/split l #"")
+                        (mapv parse-long))))
+     (mapv (fn [x r]
+             (mapv (fn [y n] [n [x y]])
+                   (range (count r)) r)) (range))
+     (solve))
+
+;;  0         1         2         3         4
+;;[[3 [0 0]] [0 [0 1]] [3 [0 2]] [7 [0 3]] [3 [0 4]]]
+
+;;   0         1         2         3         4          5        6          7
+
+(defn update-previous
+  [summary height x y]
+  (reduce 
+     (fn [summary y]
+       (if (> height (get-in summary [:biggest [x y]] -1))
+         (-> summary
+             (assoc-in [:biggest [x y]] height)
+             (update-in [:visible [x y]] (fnil inc 0)))
+         summary))
+   summary
+   (range 0 y)))
+
+
+(update-previous
+ {:biggest {[0 0] 7, [0 1] 1}, :visible {[0 0] 1, [0 1] 1}}
+ 2
+ 0 3)
+
+
+
+{:biggest {[0 0] 7, [0 1] 2, [0 2] 2}, 
+ :visible {[0 0] 1, [0 1] 2, [0 2] 1}}
+
+(let [summary {:biggest {} :visible {}}
+      row [[3 [0 0]] [7 [0 1]] [1 [0 2]] [2 [0 3]] [9 [0 4]] [3 [0 5]] [7 [0 6]] [5 [0 7]]]]
+  (reduce 
+   (fn [summary [n [x y]]] (update-previous summary n x y))
+    summary row))
+
+[[3 [0 0]] [7 [0 1]] [1 [0 2]] [2 [0 3]] [9 [0 4]] [3 [0 5]] [7 [0 6]] [5 [0 7]]]
+;;   ----------1----------------------------2
+;;             ---------1----------2--------3
+;;                       ----------1--------2
+;;                                 ---------1
+;;                                          -----------1----------2
+;;                                                     -----------1
+;;                                                                ---------1
+
+{:biggest {[0 0] 9, [0 1] 9, [0 2] 9, [0 3] 9, [0 4] 7, [0 5] 7, [0 6] 5},
+ :visible {[0 0] 2, [0 1] 3, [0 2] 2, [0 3] 1, [0 4] 2, [0 5] 1, [0 6] 1}}
+
+
+;;                               summary = {}
+;; idx = 1    n = 7, xy = [0 1]
+;; if n > (get-in summary [:biggest xy] -1)  :: 7 > -1
+;;     update summary->biggest [0 0] 7
+;;     update summary->visible [0 0] inc = 1
+;;
+;; idx = 2    n = 1, xy = [0 2]      |- go from 0 to idx
+;; if n > (get-in summary [:biggest [0, 0]] -1)  :: 1 > 7
+;; if n > (get-in summary [:biggest [0, 1]] -1)  :: 1 > -1
+;;     update summary->biggest [0 1] 1
+;;     update summary->visible [0 1] inc = 1
+;; 
+;; idx = 3    n = 2, xy = [0 3]      |- go from 0 to idx
+;; if n > (get-in summary [:biggest [0, 0]] -1)  :: 2 > 7
+;; if n > (get-in summary [:biggest [0, 1]] -1)  :: 2 > 1
+;;     update summary->biggest [0 1] 2
+;;     update summary->visible [0 1] inc = 2
+;; if n > (get-in summary [:biggest [0, 2]] -1)  :: 2 > -1
+;;     update summary->biggest [0 2] 2
+;;     update summary->visible [0 2] inc = 1 
+
+;; these steps are a reduce of (range 0 y)
+;; with summary as the reduction accumulator
+;; how to do the sub steps ?
+;; another loop ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+(get-in {} [:biggest [0 0]] -1)
