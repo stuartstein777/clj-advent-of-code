@@ -53,14 +53,11 @@
                ) summary (range (count row)))) summary grid))
 
 (defn solve-pt2 [grid]
-  (let [summary {:visible {}, :biggest {}}]
+  (let [summary {:visible {}}]
     (-> summary
         (get-scenic-score-per-tree grid :lr)
-        (assoc :biggest {})
         (get-scenic-score-per-tree (reverse-rows grid) :rl)
-        (assoc :biggest {})
         (get-scenic-score-per-tree (apply map vector grid) :ud)
-        (assoc :biggest {})
         (get-scenic-score-per-tree (reverse-rows (apply map vector grid)) :du))))
 
 (->> (slurp "puzzle-inputs/2022/day8")
