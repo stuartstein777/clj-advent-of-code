@@ -40,4 +40,3 @@ CrZsJsPPZsGzwwsLwLmpwMDw")
      (partition 3)
      (mapcat find-common)
      score)
-

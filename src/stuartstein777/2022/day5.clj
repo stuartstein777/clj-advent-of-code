@@ -8,11 +8,10 @@
 
 (defn parse-stack [stack]
   (-> stack
-      (str/replace #"\s\s\s\s" "-")
-      (str/replace #"\[|]| " "")
-      (str/split-lines)
-      butlast
-      (->> (map #(str/split % #""))
+      (str/replace #"\s\s\s\s" "-")           
+      (str/replace #"\[|]| " "")              
+      (str/split-lines)                       
+      (->> (map #(str/split % #""))           
            (apply map vector)
            (zipmap (range 1 (count stack)))
            (remove-empty))))

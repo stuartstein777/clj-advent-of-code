@@ -10,4 +10,7 @@
       dest    (format "puzzle-inputs/%s/day%s" yr (Long/parseLong dy))]
   (->> (curl/get url {:headers {"Cookie" (str "session=" cookie)}})
        :body
-       (spit dest)))
+       (spit dest))
+  
+  (spit (str "src/stuartstein777/" yr "/day" dy ".clj")
+        (str "(ns stuartstein777." yr ".day" dy ")")))

@@ -46,7 +46,6 @@
         (and (< hx tx) (= 2 (- hy ty))))
     [hx (dec hy)]))
 
-
 (defn parse-input []
   (->> (slurp "puzzle-inputs/2022/day9")
        (str/split-lines)
@@ -72,7 +71,6 @@
     {:head new-head-pos
      :tail new-tail-pos
      :tail-visited new-visited}))
-
 
  (->> (parse-input)
       (expand-input)
