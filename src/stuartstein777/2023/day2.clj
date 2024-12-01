@@ -1,4 +1,4 @@
-(ns stuartstein777.2023.day1
+(ns stuartstein777.2023.day2
   (:require [clojure.string :as str]))
 
 (defn parse-turn [turn]
