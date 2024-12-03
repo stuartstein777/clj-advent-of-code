@@ -14,3 +14,8 @@
   
   (spit (str "src/stuartstein777/" yr "/day" dy ".clj")
         (str "(ns stuartstein777." yr ".day" dy ")")))
+
+;; run with bb dli.clj >year< >day<
+;; e.g. $ bb dli.clj 2024 1
+;; needs session cookie in .session, get this by logging into browser and getting value from cookie tab in dev tools
+
