@@ -73,9 +73,9 @@
                    (get-in grid [(+ y 1) (- x 1)])
                    (get-in grid [(+ y 1) (+ x 1)])]]
       (if (or (= corners [\M \M \S \S])
+              (= corners [\M \S \M \S])
               (= corners [\S \S \M \M])
-              (= corners [\S \M \S \M])
-              (= corners [\M \S \M \S]))
+              (= corners [\S \M \S \M]))
         1
         0))
     0))
