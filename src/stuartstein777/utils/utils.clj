@@ -41,6 +41,9 @@
 (defn amv [xs]
   (apply map vector xs))
 
+(defn insert-at [xs i n]
+  (vec (concat (subvec xs 0 i) [n] (subvec xs i))))
+
 (defn decimal->ratio [dec]
   (loop [n dec
          d 1
