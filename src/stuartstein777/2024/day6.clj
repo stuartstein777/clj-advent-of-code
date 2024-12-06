@@ -1,6 +1,7 @@
 (ns stuartstein777.2024.day6 
   (:require
-    [clojure.string :as str]))
+    [clojure.string :as str]
+    [clojure.set :as set]))
 
 
 (defn parse-input []
@@ -61,13 +62,13 @@
      (and (= :west dir) (not= west-cell obstacle))
      (and (= :east dir) (not= east-cell obstacle)))))
 
-(defn walk-guard [grid {:keys [yx] :as guard} visited]
+(defn walk-guard [grid {:keys [yx dir] :as guard} visited]
   ;(prn yx visited)
   (let [limit-y (count grid)
         limit-x (count (first grid))
         [guard-y guard-x] yx
         visited (if (and (pos? guard-y) (not= guard-y limit-y) (not= guard-x limit-x) (pos? guard-x))
-                  (conj visited [guard-y guard-x])
+                  (conj visited [guard-y guard-x dir])
                   visited)]
     ;(print (print-str "[" guard-y guard-x "] "))
     (if (or (= limit-x guard-x) (= limit-y guard-y) (neg? guard-y) (neg? guard-x))
@@ -86,74 +87,144 @@
 
 (part-1)
 
-;; check each square they hit, see if you can put an obstacle there. Plus north, south, east, west of guard start
+;; check each square they hit, see if you can put an obstacle there in the direction of travel.
+;; Plus north, south, east, west of guard start
 ;; if you end up with a loop.
 ;; how to detect a loop? cant just use visited squares, as they could revisit a square multiple times
 ;; without looping.
 
 ;    0 1 2 3 4 5 6 7 8 9
 ; 0 [. . . . # . . . . .]
-; 1 [. . . . . . . . . #]
-; 2 [. . . . . . . . . .]
-; 3 [. . # . . . . . . .]
-; 4 [. . . . . . v # . .]
-; 5 [. . . . . . . . . .]
-; 6 [. # . 0 ^ . . . . .]
-; 7 [. . . . . . . . # .]
-; 8 [# . . . . . . . . .]
-; 9 [. . . . . . # . . .]
+; 1 [. . . . ┌───────┐ #]
+; 2 [. . . . │ . . . │ .]
+; 3 [. . # . │ . . . │ .]
+; 4 [. . ┌───┼───┐ # │ .]
+; 5 [. . │ . | . │ . │ .]
+; 6 [. # └───^───┼───┘ .]
+; 7 [. ┌─────────┼──┐# .]
+; 8 [# └─────────┘  │. .]
+; 9 [. . . . . . # .│. .]
+;                   ╽
 
-;; [7 6] [6 3] [7 8] [8 1] [8 3] [9 7]
 
-;; [6 4] exists multiple times in the path,
-;; first time at [6 4] we are travelling north.
-;; second time at [6 4] we are travelling west.
-;; so an obstacle at *[6 3]* would turn us north and create a loop.
+;; expected: [7 6] [6 3] [7 8] [8 1] [8 3] [9 7]
 ;;
-;; [4 4] exists multiple times in the path,
-;; first time at [4 4] we are travelling north.
-;; second time at [4 4] we are travelling east, 
-;; so an obstacle at [4 3] would turn us south, no loop.
+;; found  [7 6] [6 3] [7 8]
+;; missed [8 1] [8 3] [9 7]
+;;
 
-;; check north, south, east, west of every square that is visited.
-;; put an obstacle there, see if it makes a loop. apart from starting square.
+;; [[6 4 :north] [5 4 :north] [4 4 :north] [3 4 :north] [2 4 :north] [1 4 :north] 
+;;  [1 5 :east]  [1 6 :east]  [1 7 :east]  [1 8 :east]  [2 8 :south] [3 8 :south] 
+;;  [4 8 :south] [5 8 :south] [6 8 :south] [6 7 :west]  [6 6 :west]  [6 5 :west] 
+;;  [6 4 :west]  [6 3 :west]  [6 2 :west]  [5 2 :north] [4 2 :north] [4 3 :east]
+;;  [4 4 :east]  [4 5 :east]  [4 6 :east]  [5 6 :south] [6 6 :south] [7 6 :south]
+;;  [8 6 :south] [8 5 :west]  [8 4 :west]  [8 3 :west]  [8 2 :west]  [8 1 :west] 
+;;  [7 1 :north] [7 2 :east]  [7 3 :east]  [7 4 :east]  [7 5 :east]  [7 6 :east]
+;;  [7 7 :east]  [8 7 :south] [9 7 :south]]
+;;
+;; consider [6 4 :north], do we have any cells for:
+;;          [7 4 :west] AFTER [6 4 :north] with no cells between these at
+;;                    [7 2 :east] 
+;;                    [6 3 :south]
+;;                    [8 3 :north]
+;;           - if so obstacle can go at [7 3] to create loop.
+;;
+;;          [5 4 :north], do we have any cells for:
+;;          [6 4 :west] AFTER [5 4 :north] - if so obstacle can go at [6 5]
+;;
+;; no. Could hit it before from another direction, which invalidates later path...
 
-(let [xs [[6 4] [5 4] [4 4] [3 4] [2 4] [1 4] [1 5] [1 6] [1 7] [1 8]
-          [2 8] [3 8] [4 8] [5 8] [6 8] [6 7] [6 6] [6 5] [6 4] [6 3] [6 2]
-          [5 2] [4 2] [4 3] [4 4] [4 5] [4 6] [5 6] [6 6] [7 6] [8 6]
-          [8 5] [8 4] [8 3] [8 2] [8 1]
-          [7 1]
-          [7 2] [7 3] [7 4] [7 5] [7 6] [7 7]
-          [8 7] [9 7]]]
-  
-  (frequencies xs))
+;; part 2 
 
+;; given a sequence and a target, get the cells from the start of the sequence and the
+;; target.
+(defn get-cells-between-points [visited target]
+  (take-while #(not= target %) visited))
 
-(frequencies [[1 1] [1 1] [2 2] [3 3] [4 4] [4 4]])
-
+;; given a potential obstacle cell, find potential visited blockers that would stop us placing
+;; an obstacle there.
+;; e.g. we want to end up on [6 4 :north], so we are looking at a path from 
+;; [7 4 :west] via an obstacle on [7 3].
+;;
+;;         [5 3] [5 4] [5 5]
+;;         [6 3] [6 4] [6 5]
+;;   [7 2] [7#3] [7 4] [7 5]
+;;         [8 3]
 ;; 
-;; [6 4] [5 4] [4 4] [3 4] [2 4] [1 4] turn east
-;; [1 5] [1 6] [1 7] [1 8] turn south
-;; [2 8] [3 8] [4 8] [5 8] [6 8] turn west
-;; [6 7] [6 6] [6 5] [6 4] [6 3] [6 2] turn north
-;; [5 2] [4 2] turn east
-;; [4 3] [4 4] [4 5] [4 6] turn south
-;; [5 6] [6 6] [7 6] [8 6] turn west
-;; [8 5] [8 4] [8 3] [8 2] [8 1] turn north
-;; [7 1] turn east
-;; [7 2] [7 3] [7 4] [7 5] [7 6] [7 7] turn south
-;; [8 7] [9 7] exit
+;; We couldn't have visited cells between [6 4 :north] and [7 4 :west] of:
+;;     [7 2 :east] -> Would hit the obstacle on [7 3]
+;;     [8 3 :north] -> Would hit the obstacle on [7 3]
+;;     [6 3 :south] -> Would hit the obstacle on [7 3]
+;; causing a redirect and our obstacle might no longer be valid.
+;; TODO: need to handle limits
+(defn get-potential-blockers [[y x]]
+  [[y (dec x) :east]
+   [(inc y) x :north]
+   [(dec y) x :south]])
+
+;; given a cell and direction of travel
+;; e.g. [6 4 :north], return an obstacle cell and a cell that if on with specified direction of travel
+;; would redirect onto the target cell and direction
+;;
+;; e.g. we want to end up [6 4 :north], 
+;; 
+;;   [5 3] [5 4] [5 5]
+;;   [6 3] [6 4] [6 5]
+;;   [7 3] [7 4] [7 5]
+;;
+;; We would want an obstacle on **[7 3]** then when it was hit by [7 4 :west]
+;; we would be redirected to [6 4 :north]
+;; could also be redirected at [6 4 :west], [8 4 :west] [9 4 :west].. upto limit...
+;; TODO: need to handle limits
+(defn get-potential-obstactle-cell [[y x dir]]
+  (condp = dir
+    :north [[(inc y) (dec x)] [(inc y) x :west]]
+    :south [[(dec y) (inc x)] [(dec y) x :east]]
+    :west  [[(inc y) (inc x)] [y (inc x) :south]]
+    :east  [[(dec y) (dec x)] [y (dec y) :north]]))
+
+(defn xs-contains-cell? [xs cell]
+  (-> (filter (fn [v] (= v cell)) xs)
+      count
+      (> 0)))
+
+(defn part-2 []
+  (let [grid (parse-input)
+        [guard-location icon] (find-guard-start grid)
+        current-guard {:yx guard-location :dir (facing icon)}
+        visited (->> (walk-guard grid current-guard []))]
+    (prn visited)
+    (loop [to-check visited
+           obstacles []]
+      (prn) (prn)
+      (let [cur (first to-check)]
+        (prn cur)
+        (if (nil? cur)
+          obstacles
+          (let [[potential-obstacle target-cell] (get-potential-obstactle-cell cur)]
+            (prn "potential obstacle" potential-obstacle " | target-cell " target-cell)
+            (if (xs-contains-cell? to-check target-cell)
+              (let [cells-upto-target-cell (set (get-cells-between-points to-check target-cell))
+                    potential-blockers     (set (get-potential-blockers potential-obstacle))]
+                (prn "cells-upto-target-cell" cells-upto-target-cell)
+                (prn "potential-blockers" potential-blockers)
+                (if (empty? (set/intersection potential-blockers cells-upto-target-cell))
+                  (do (prn "found obstacle at " potential-obstacle)
+                      (recur (rest to-check) (conj obstacles potential-obstacle)))
+                  (do
+                    (prn "path contains a potential blocker")
+                    (recur (rest to-check) obstacles))))
+              (do 
+                (prn "never hit target cell" target-cell)
+                (recur (rest to-check) obstacles)))))))))
 
 
-;; [6 4] [5 4] [4 4] [3 4] [2 4] [1 4] turn :east
-;; [1 5] [1 6] [1 7] [1 8] turn :south
-;; [2 8] [3 8] [4 8] [5 8] [6 8] turn :west
-;; [6 7] [6 6] [6 5] [6 4] [6 3] [6 2] turn :north
-;; [5 2] [4 2] turn :east
-;; [4 3] [4 4] [4 5] [4 6] turn :south
-;; [5 6] [6 6] [7 6] [8 6] turn :west
-;; [8 5] [8 4] [8 3] [8 2] [8 1] turn :north
-;; [7 1] turn :east
-;; [7 2] [7 3] [7 4] [7 5] [7 6] [7 7] turn :south
-;; [8 7] [9 7] [10 7] 
+(part-2)
+
+(comment
+  
+  ; test res [[6 3] [7 6] [7 7]]
+  ; test target res [[6 3] [7 6] [7 7] [8 1] [8 3] [9 7]]
+
+  )
 
