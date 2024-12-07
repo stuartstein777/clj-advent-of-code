@@ -20,7 +20,9 @@
 (defn comb [m n]
   (parse-long (str m n)))
 
-(defn solve [eq]
+(defn solve 
+  "Takes an equestion of the form [1 \+ 2 \* 3 \+ 4] and returns 13"
+  [eq]
   (:total (reduce (fn [{:keys [total op] :as acc} i]
                     (if (or (= i \*) (= i \+) (= i \c))
                       (assoc acc :op i)
