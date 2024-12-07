@@ -17,15 +17,19 @@
        (str/split-lines)
        (mapv parse-line)))
 
-;; takes an equation in the form [1 + 2 * 3 + 4 * 5]
+(defn comb [m n]
+  (parse-long (str m n)))
+
 (defn solve [eq]
   (:total (reduce (fn [{:keys [total op] :as acc} i]
-                    (if (or (= i *) (= i +))
+                    (if (or (= i \*) (= i \+) (= i \c))
                       (assoc acc :op i)
-                      (if (= * op)
-                        (assoc acc :total (* total i))
-                        (assoc acc :total (+ total i)))))
-                  {:total 0 :op nil}
+                      (condp = op
+                        \* (assoc acc :total (* total i))
+                        \+ (assoc acc :total (+ total i))
+                        \c (assoc acc :total (comb total i))
+                        nil (assoc acc :total i))))
+                  {:total 0.0 :op nil}
                   eq)))
 
 (defn merge-lists [main-list interleaved-items]
@@ -33,31 +37,24 @@
         remaining (drop (count interleaved-items) main-list)]
     (concat pairs remaining)))
 
-(defn generate-permutations [items length]
-  (->> (repeat length items)
-       (apply combo/cartesian-product)))
-
-(defn equation-can-be-solved [equation]
-  (let [operators [+ * ]
-        perm-count (dec (count (:values equation)))
-        operator-permutations (generate-permutations operators perm-count)
+(defn equation-can-be-solved [operators equation]
+  (let [perm-count (dec (count (:values equation)))
+        operator-permutations (combo/selections operators perm-count)
         equations (map (partial merge-lists (:values equation)) operator-permutations)]
     (reduce (fn [_ eq]
               (if (= (solve eq) (:total equation))
                 (reduced (:total equation))
                 0)) 0 equations)))
 
-(comment
-  (equation-can-be-solved {:total 18
-                           :values [4 5 3]})
-  )
-
-
-
 (defn part-one []
   (let [input (parse)]
-    (->> (map equation-can-be-solved input)
+    (->> (map (partial equation-can-be-solved [\+ \*]) input)
          (reduce +))))
 
-(part-one) ;; 6083020304036
+(defn part-two []
+  (let [input (parse)]
+    (->> (map (partial equation-can-be-solved [\+ \* \c]) input)
+         (reduce +))))
 
+(part-one) ; 6083020304036
+(part-two) ; 59002246504791
